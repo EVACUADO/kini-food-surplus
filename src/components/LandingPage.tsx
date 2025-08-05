@@ -242,24 +242,68 @@ const LandingPage = () => {
         )}
       </nav>
 
-      {/* Hero Section */}
+      {/* Hero Section with Banner */}
       <section
         id="home"
         className="pt-20 pb-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-green-50 to-white"
       >
         <div className="max-w-7xl mx-auto">
+          {/* Banner Image - Responsive */}
+          <div className="mb-12">
+            <div className="relative w-full overflow-hidden rounded-2xl shadow-2xl">
+              <img
+                src="/Banners/LandingTopBanner.png"
+                alt="Kini Food Surplus Banner"
+                className="w-full h-auto object-cover object-center"
+                style={{
+                  maxHeight: '500px',
+                  minHeight: '200px',
+                }}
+                onError={(e) => {
+                  // Fallback in case the specific filename doesn't exist
+                  const target = e.target as HTMLImageElement;
+                  const extensions = ['png', 'jpeg', 'webp', 'gif'];
+                  const currentSrc = target.src;
+                  
+                  // Try different extensions
+                  for (const ext of extensions) {
+                    if (!currentSrc.includes(`.${ext}`)) {
+                      target.src = `/Banners/banner.${ext}`;
+                      return;
+                    }
+                  }
+                  
+                  // If all fail, try without specific filename
+                  if (!currentSrc.includes('kini-banner')) {
+                    target.src = '/Banners/kini-banner.jpg';
+                    return;
+                  }
+                  
+                  // Last fallback - hide the image and show text
+                  target.style.display = 'none';
+                  const fallbackDiv = document.createElement('div');
+                  fallbackDiv.className = 'bg-gradient-to-r from-[#469b47] to-[#3A7D44] text-white p-12 rounded-2xl text-center';
+                  fallbackDiv.innerHTML = `
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4">
+                      Save Money, <span class="text-green-200">Save Food</span>, Save the Planet
+                    </h1>
+                    <p class="text-lg sm:text-xl text-green-100 max-w-3xl mx-auto">
+                      Discover surplus food from local restaurants and stores at up to 70% off
+                    </p>
+                  `;
+                  target.parentNode?.appendChild(fallbackDiv);
+                }}
+              />
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Left Content */}
+            {/* Left Content - CTA Section */}
             <div className="space-y-8">
               <div className="space-y-6">
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                  Save Money, <span className="text-[#469b47]">Save Food</span>,{' '}
-                  Save the Planet
-                </h1>
                 <p className="text-lg sm:text-xl text-gray-600 leading-relaxed max-w-2xl">
-                  Discover surplus food from local restaurants and stores at up
-                  to 70% off. Help reduce food waste while enjoying delicious
-                  meals at incredible prices.
+                  Join our mission to reduce food waste while enjoying delicious
+                  meals at incredible prices. Every purchase makes a difference!
                 </p>
               </div>
 
