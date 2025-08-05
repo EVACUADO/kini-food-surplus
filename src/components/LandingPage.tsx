@@ -24,6 +24,7 @@ import {
   Star,
   BarChart3,
   Handshake,
+  Search,
 } from 'lucide-react';
 import UnifiedAuth from './UnifiedAuth';
 
@@ -33,6 +34,7 @@ const LandingPage = () => {
   const [scrolled, setScrolled] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authType, setAuthType] = useState<'login' | 'signup'>('login');
+  const [address, setAddress] = useState('');
 
   // Color definitions
   const colors = {
@@ -68,6 +70,11 @@ const LandingPage = () => {
     setAuthType(type);
     setShowAuthModal(true);
     setIsMenuOpen(false);
+  };
+
+  const handleAddressSearch = () => {
+    // Handle address search functionality
+    console.log('Searching for address:', address);
   };
 
   // Navigation items data
@@ -242,58 +249,54 @@ const LandingPage = () => {
         )}
       </nav>
 
-      {/* Hero Section with Banner */}
+      {/* Hero Section with Responsive Banner */}
       <section
         id="home"
         className="pt-20 pb-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-green-50 to-white"
       >
         <div className="max-w-7xl mx-auto">
-          {/* Banner Image - Responsive */}
+          {/* Responsive Banner Image */}
           <div className="mb-12">
             <div className="relative w-full overflow-hidden rounded-2xl shadow-2xl">
-              <img
-                src="/Banners/LandingTopBanner.png"
-                alt="Kini Food Surplus Banner"
-                className="w-full h-auto object-cover object-center"
-                style={{
-                  maxHeight: '500px',
-                  minHeight: '200px',
-                }}
-                onError={(e) => {
-                  // Fallback in case the specific filename doesn't exist
-                  const target = e.target as HTMLImageElement;
-                  const extensions = ['png', 'jpeg', 'webp', 'gif'];
-                  const currentSrc = target.src;
-                  
-                  // Try different extensions
-                  for (const ext of extensions) {
-                    if (!currentSrc.includes(`.${ext}`)) {
-                      target.src = `/Banners/banner.${ext}`;
+              <picture>
+                {/* Mobile Banner */}
+                <source 
+                  media="(max-width: 768px)" 
+                  srcSet="/Banners/LandingTopBanner_Phone.png"
+                />
+                {/* Desktop Banner */}
+                <img
+                  src="/banners/LandingTopBanner.png"
+                  alt="Kini Food Surplus Banner"
+                  className="w-full h-auto object-cover object-center"
+                  style={{
+                    maxHeight: '500px',
+                    minHeight: '200px',
+                  }}
+                  onError={(e) => {
+                    // Fallback in case the specific filename doesn't exist
+                    const target = e.target as HTMLImageElement;
+                    // Try with different case
+                    if (target.src.includes('LandingTopBanner.png')) {
+                      target.src = '/Banners/LandingTopBanner.png';
                       return;
                     }
-                  }
-                  
-                  // If all fail, try without specific filename
-                  if (!currentSrc.includes('kini-banner')) {
-                    target.src = '/Banners/kini-banner.jpg';
-                    return;
-                  }
-                  
-                  // Last fallback - hide the image and show text
-                  target.style.display = 'none';
-                  const fallbackDiv = document.createElement('div');
-                  fallbackDiv.className = 'bg-gradient-to-r from-[#469b47] to-[#3A7D44] text-white p-12 rounded-2xl text-center';
-                  fallbackDiv.innerHTML = `
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4">
-                      Save Money, <span class="text-green-200">Save Food</span>, Save the Planet
-                    </h1>
-                    <p class="text-lg sm:text-xl text-green-100 max-w-3xl mx-auto">
-                      Discover surplus food from local restaurants and stores at up to 70% off
-                    </p>
-                  `;
-                  target.parentNode?.appendChild(fallbackDiv);
-                }}
-              />
+                    // Last fallback - show text banner
+                    target.style.display = 'none';
+                    const fallbackDiv = document.createElement('div');
+                    fallbackDiv.className = 'bg-gradient-to-r from-[#469b47] to-[#3A7D44] text-white p-12 rounded-2xl text-center';
+                    fallbackDiv.innerHTML = `
+                      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4">
+                        Save Money, <span class="text-green-200">Save Food</span>, Save the Planet
+                      </h1>
+                      <p class="text-lg sm:text-xl text-green-100 max-w-3xl mx-auto">
+                        Discover surplus food from local restaurants and stores at up to 70% off
+                      </p>
+                    `;
+                    target.parentNode?.appendChild(fallbackDiv);
+                  }}
+                />
+              </picture>
             </div>
           </div>
 
@@ -315,6 +318,38 @@ const LandingPage = () => {
                 <button className="border-2 border-[#469b47] text-[#469b47] px-8 py-4 rounded-xl hover:bg-[#469b47] hover:text-white transition-all duration-200 font-semibold text-lg">
                   For Merchants
                 </button>
+              </div>
+
+              {/* Address Input Section */}
+              <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-gray-100">
+                <div className="flex items-center space-x-2 mb-4">
+                  <MapPin className="w-5 h-5 text-[#469b47]" />
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Find deals near you
+                  </h3>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder="Enter your address or area (e.g., Makati, BGC, Ortigas)"
+                      className="w-full px-4 py-3 pl-12 pr-4 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#469b47] focus:border-transparent text-gray-900 placeholder-gray-500"
+                    />
+                    <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  </div>
+                  <button
+                    onClick={handleAddressSearch}
+                    className="bg-[#469b47] text-white px-6 py-3 rounded-xl hover:bg-[#3A7D44] transition-all duration-200 font-medium flex items-center justify-center space-x-2 shadow-md hover:shadow-lg"
+                  >
+                    <Search className="w-5 h-5" />
+                    <span>Search</span>
+                  </button>
+                </div>
+                <p className="text-sm text-gray-600 mt-3">
+                  Get personalized food deals from restaurants and stores in your area
+                </p>
               </div>
 
               {/* Stats */}
