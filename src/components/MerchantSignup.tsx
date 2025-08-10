@@ -26,6 +26,10 @@ import {
   Bell,
   Zap,
   Gift,
+  Search,
+  ChevronDown,
+  ChevronUp,
+  X,
 } from 'lucide-react';
 
 interface MerchantSignupProps {
@@ -42,17 +46,15 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
 
   const [formData, setFormData] = useState({
     businessName: '',
+    businessBranch: '',
     businessLocation: '',
     useGPS: false,
     phoneNumber: '',
     businessEmail: '',
-    productCategories: [] as string[],
+    lineOfBusiness: [] as string[],
     eWalletProvider: '', // 'gcash' or 'maya'
     eWallet: '',
     otpCode: '',
-    enableSmsAlerts: true,
-    enableAutoTopup: false,
-    autoTopupAmount: '25',
     dtiSec: null as File | null,
     birCertificate: null as File | null,
     businessPermit: null as File | null,
@@ -71,18 +73,48 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
   const [otpVerified, setOtpVerified] = useState(false);
   const [otpTimer, setOtpTimer] = useState(0);
 
-  const productCategoryOptions = [
-    'Bakery & Pastries',
-    'Coffee & Beverages',
-    'Fast Food',
-    'Restaurant Meals',
-    'Desserts & Sweets',
-    'Frozen Foods',
-    'Fresh Produce',
-    'Dairy Products',
-    'Prepared Foods',
-    'Other',
+  // New state for searchable dropdown
+  const [businessSearchTerm, setBusinessSearchTerm] = useState('');
+  const [isBusinessDropdownOpen, setIsBusinessDropdownOpen] = useState(false);
+
+  const lineOfBusinessOptions = [
+    // Farmers & Producers
+    'Crop Farmers (Fruits, Vegetables, Grains)',
+    'Livestock/Poultry Raisers (Eggs, Meat)',
+    'Fishermen & Aquaculture (Fresh/Processed Seafood)',
+    
+    // Food Manufacturers & Processors
+    'Bakery & Pastry Producers (Bread, Cakes, Overruns)',
+    'Snack & Packaged Food Makers (Chips, Biscuits, Noodles)',
+    'Dairy & Cheese Producers',
+    'Canned/Jarred Food Makers',
+    
+    // Retailers & Sellers with Physical Stores
+    'Sari-Sari Stores / Small Groceries (Surplus Packaged Goods)',
+    'Supermarkets / Hypermarkets (Excess Stock)',
+    'Palengke (Wet Market) Vendors (Near-Expiry Fresh Food)',
+    'Warehouse Sellers (Bulk Surplus)',
+    
+    // Restaurants & Food Service
+    'Fast Food Chains (Excess Ingredients/Prepared Food)',
+    'Carinderias / Turo-Turo (Leftover Meals)',
+    'Bakeshops (Day-Old Bread/Pastries)',
+    'Cafés / Milk Tea Shops (Extra Ingredients)',
+    
+    // Specialty Surplus Sellers
+    'Organic/Natural Food Sellers (Imperfect Produce)',
+    'Halal Food Suppliers',
+    'Importers/Exporters (Overstocked Goods)',
+    
+    // Beverage Sellers
+    'Drink Manufacturers (Overstocked Bottles/Cans)',
+    'Coffee/Tea Suppliers',
   ];
+
+  // Filter business options based on search term
+  const filteredBusinessOptions = lineOfBusinessOptions.filter(business =>
+    business.toLowerCase().includes(businessSearchTerm.toLowerCase())
+  );
 
   // Scroll to top function
   const scrollToTop = () => {
@@ -100,10 +132,11 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
       case 1:
         return (
           !formData.businessName.trim() &&
+          !formData.businessBranch.trim() &&
           !formData.businessLocation.trim() &&
           !formData.phoneNumber.trim() &&
           !formData.businessEmail.trim() &&
-          formData.productCategories.length === 0
+          formData.lineOfBusiness.length === 0
         );
       case 2:
         return (
@@ -151,12 +184,12 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
     }
   };
 
-  const handleCategoryChange = (category: string) => {
+  const handleLineOfBusinessChange = (business: string) => {
     setFormData((prev) => ({
       ...prev,
-      productCategories: prev.productCategories.includes(category)
-        ? prev.productCategories.filter((c) => c !== category)
-        : [...prev.productCategories, category],
+      lineOfBusiness: prev.lineOfBusiness.includes(business)
+        ? prev.lineOfBusiness.filter((b) => b !== business)
+        : [...prev.lineOfBusiness, business],
     }));
 
     // Hide empty form error when user makes selection
@@ -299,9 +332,9 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
       newErrors.businessEmail = 'Please enter a valid email address';
     }
 
-    if (formData.productCategories.length === 0) {
-      newErrors.productCategories =
-        'Please select at least one product category';
+    if (formData.lineOfBusiness.length === 0) {
+      newErrors.lineOfBusiness =
+        'Please select at least one line of business';
     }
 
     setErrors(newErrors);
@@ -401,7 +434,7 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
     setTimeout(() => {
       console.log('Merchant registration:', formData);
       alert(
-        '🎉 Application submitted successfully! Your e-wallet has been verified and set as your permanent payout method. Please wait 24 hours for verification. You will receive an email with further instructions.'
+        '🎉 Application submitted successfully! Your e-wallet has been verified and saved for future transactions. Please wait 24 hours for verification. You will receive an email with further instructions.'
       );
       setIsLoading(false);
     }, 2000);
@@ -692,6 +725,40 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
                   </div>
                 </div>
 
+                {/* Business Branch */}
+                <div className="lg:col-span-2">
+                  <div className="space-y-3">
+                    <label
+                      htmlFor="businessBranch"
+                      className="block text-sm font-semibold text-gray-700"
+                    >
+                      Branch <span className="text-gray-500 font-normal">(Optional)</span>
+                    </label>
+                    <div className="relative group">
+                      <Building className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 group-focus-within:text-[#469b47] transition-colors" />
+                      <input
+                        type="text"
+                        id="businessBranch"
+                        name="businessBranch"
+                        value={formData.businessBranch}
+                        onChange={handleInputChange}
+                        className={`w-full pl-12 pr-4 py-4 border-2 rounded-2xl focus:ring-4 focus:ring-[#469b47]/20 focus:border-[#469b47] transition-all duration-200 text-sm bg-gray-50 focus:bg-white ${
+                          errors.businessBranch
+                            ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
+                            : 'border-gray-200'
+                        }`}
+                        placeholder="Enter branch name (e.g., Main Branch, Makati Branch)"
+                      />
+                    </div>
+                    {errors.businessBranch && (
+                      <div className="flex items-center text-red-600 text-xs animate-pulse">
+                        <AlertCircle className="w-4 h-4 mr-1" />
+                        {errors.businessBranch}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 {/* Business Location */}
                 <div className="lg:col-span-2">
                   <div className="space-y-3">
@@ -800,40 +867,112 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
                 </div>
               </div>
 
-              {/* Product Categories */}
+              {/* Searchable Line of Business */}
               <div className="space-y-4">
                 <label className="block text-sm font-semibold text-gray-700">
-                  Product Categories{' '}
+                  Line of Business{' '}
                   <span className="text-gray-500 font-normal">
                     (Select all that apply)
                   </span>
                 </label>
-                <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {productCategoryOptions.map((category) => (
-                      <label
-                        key={category}
-                        className="flex items-center space-x-3 cursor-pointer p-4 rounded-xl hover:bg-white hover:shadow-sm transition-all duration-200 group border border-transparent hover:border-gray-200"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={formData.productCategories.includes(
-                            category
-                          )}
-                          onChange={() => handleCategoryChange(category)}
-                          className="h-5 w-5 text-[#469b47] focus:ring-[#469b47] border-gray-300 rounded transition-all duration-200"
-                        />
-                        <span className="text-sm text-gray-700 group-hover:text-gray-900 transition-colors font-medium">
-                          {category}
-                        </span>
-                      </label>
-                    ))}
+                
+                {/* Selected Items Display */}
+                {formData.lineOfBusiness.length > 0 && (
+                  <div className="bg-green-50 border border-green-200 rounded-2xl p-4 mb-4">
+                    <div className="flex items-center space-x-2 mb-3">
+                      <Check className="w-4 h-4 text-green-600" />
+                      <span className="text-sm font-semibold text-green-800">
+                        Selected ({formData.lineOfBusiness.length})
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {formData.lineOfBusiness.map((business) => (
+                        <div
+                          key={business}
+                          className="bg-white border border-green-300 rounded-xl px-3 py-2 flex items-center space-x-2 text-sm"
+                        >
+                          <span className="text-gray-700">{business}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleLineOfBusinessChange(business)}
+                            className="text-green-600 hover:text-green-800 transition-colors"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
+                )}
+
+                {/* Searchable Dropdown */}
+                <div className="relative">
+                  <div className="relative group">
+                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 group-focus-within:text-[#469b47] transition-colors" />
+                    <input
+                      type="text"
+                      value={businessSearchTerm}
+                      onChange={(e) => setBusinessSearchTerm(e.target.value)}
+                      onFocus={() => setIsBusinessDropdownOpen(true)}
+                      className={`w-full pl-12 pr-12 py-4 border-2 rounded-2xl focus:ring-4 focus:ring-[#469b47]/20 focus:border-[#469b47] transition-all duration-200 text-sm bg-gray-50 focus:bg-white ${
+                        errors.lineOfBusiness
+                          ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
+                          : 'border-gray-200'
+                      }`}
+                      placeholder="Search for your line of business..."
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setIsBusinessDropdownOpen(!isBusinessDropdownOpen)}
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#469b47] transition-colors"
+                    >
+                      {isBusinessDropdownOpen ? (
+                        <ChevronUp className="w-5 h-5" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Dropdown List */}
+                  {isBusinessDropdownOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-2xl shadow-xl z-50 max-h-80 overflow-y-auto">
+                      {filteredBusinessOptions.length > 0 ? (
+                        <div className="p-2">
+                          {filteredBusinessOptions.map((business) => (
+                            <label
+                              key={business}
+                              className="flex items-center space-x-3 cursor-pointer p-4 rounded-xl hover:bg-gray-50 transition-all duration-200 group border border-transparent hover:border-gray-200"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={formData.lineOfBusiness.includes(business)}
+                                onChange={() => handleLineOfBusinessChange(business)}
+                                className="h-5 w-5 text-[#469b47] focus:ring-[#469b47] border-gray-300 rounded transition-all duration-200 flex-shrink-0"
+                              />
+                              <span className="text-sm text-gray-700 group-hover:text-gray-900 transition-colors font-medium">
+                                {business}
+                              </span>
+                            </label>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="p-6 text-center text-gray-500">
+                          <Search className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                          <p className="text-sm">No matches found</p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            Try searching with different keywords
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-                {errors.productCategories && (
+
+                {errors.lineOfBusiness && (
                   <div className="flex items-center text-red-600 text-xs animate-pulse">
                     <AlertCircle className="w-4 h-4 mr-1" />
-                    {errors.productCategories}
+                    {errors.lineOfBusiness}
                   </div>
                 )}
               </div>
@@ -950,7 +1089,7 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
               </button>
             </form>
           ) : (
-            // Step 3: E-wallet & Permanent Payout Setup
+            // Step 3: E-wallet & Verification Setup
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="text-center mb-8">
                 <div className="w-20 h-20 bg-gradient-to-br from-[#469b47] to-[#3A7D44] rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
@@ -960,7 +1099,7 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
                   Secure Payment Setup
                 </h3>
                 <p className="text-gray-600 text-sm">
-                  Set up your permanent payout method - Your payments are always
+                  Link your e-wallet for account verification - Your payments are always
                   encrypted
                 </p>
               </div>
@@ -983,8 +1122,7 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
                     Choose Your E-wallet Provider
                   </h4>
                   <p className="text-gray-600 text-sm">
-                    This will be your permanent payout method for all token
-                    sales
+                    Link your e-wallet for account verification and future transactions
                   </p>
                 </div>
 
@@ -1012,7 +1150,7 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
                         <img
                           src="/Apps_logo/Gcash.jpeg"
                           alt="GCash Logo"
-                          className="w-full h-full object-contain"
+                          className="w-full h-full object-cover"
                         />
                       </div>
                       <div>
@@ -1055,7 +1193,7 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
                         <img
                           src="/Apps_logo/Maya.jpeg"
                           alt="Maya Logo"
-                          className="w-full h-full object-contain"
+                          className="w-full h-full object-cover"
                         />
                       </div>
                       <div>
@@ -1093,8 +1231,7 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
                       Number
                     </h4>
                     <p className="text-gray-600 text-sm">
-                      This number will be permanently linked to your account for
-                      payouts
+                      Link this number to your account for verification and future transactions
                     </p>
                   </div>
 
@@ -1240,8 +1377,7 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
                             Number Verified Successfully!
                           </p>
                           <p className="text-green-700 text-xs">
-                            {formData.eWallet} is now set as your permanent
-                            payout method
+                            {formData.eWallet} is now linked to your account
                           </p>
                         </div>
                       </div>
@@ -1250,32 +1386,28 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
                 </div>
               )}
 
-              {/* Permanent Payout Disclaimer */}
+              {/* Account Verification Notice */}
               {otpVerified && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-6">
                   <div className="flex items-start space-x-4">
                     <Lock className="w-6 h-6 text-yellow-600 mt-1 flex-shrink-0" />
                     <div>
                       <h4 className="font-semibold text-yellow-800 mb-2">
-                        Permanent Payout Method
+                        Account Verification Setup
                       </h4>
                       <ul className="text-yellow-700 text-sm space-y-1">
                         <li>
                           • Your {formData.eWalletProvider.toUpperCase()} number
-                          ({formData.eWallet}) is now permanently linked to your
-                          account
+                          ({formData.eWallet}) is now linked to your account
                         </li>
                         <li>
-                          • All token purchase payments will be sent directly to
-                          this number
+                          • This is saved for account verification and future transactions
                         </li>
                         <li>
-                          • You won't need to re-enter this information for
-                          future transactions
+                          • No auto top up - you maintain full control of your payments
                         </li>
                         <li>
-                          • This setup ensures secure, automated payouts for all
-                          your sales
+                          • All transactions require your manual approval
                         </li>
                       </ul>
                     </div>
@@ -1283,121 +1415,7 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
                 </div>
               )}
 
-              {/* Notification Settings */}
-              {otpVerified && (
-                <div className="bg-gray-50 rounded-2xl p-6 space-y-6">
-                  <h4 className="text-lg font-bold text-gray-900 text-center">
-                    Notification & Payment Settings
-                  </h4>
-
-                  {/* SMS Alerts Toggle */}
-                  <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200">
-                    <div className="flex items-center space-x-3">
-                      <Bell className="w-5 h-5 text-blue-600" />
-                      <div>
-                        <p className="font-semibold text-gray-900 text-sm">
-                          SMS Alerts
-                        </p>
-                        <p className="text-gray-600 text-xs">
-                          Get notified when tokens are low or expired
-                        </p>
-                      </div>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        name="enableSmsAlerts"
-                        checked={formData.enableSmsAlerts}
-                        onChange={handleInputChange}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#469b47]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#469b47]"></div>
-                    </label>
-                  </div>
-
-                  {/* Auto Top-up Toggle */}
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200">
-                      <div className="flex items-center space-x-3">
-                        <RefreshCw className="w-5 h-5 text-green-600" />
-                        <div>
-                          <p className="font-semibold text-gray-900 text-sm">
-                            Auto Top-up
-                          </p>
-                          <p className="text-gray-600 text-xs">
-                            Automatically purchase tokens when running low
-                          </p>
-                        </div>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          name="enableAutoTopup"
-                          checked={formData.enableAutoTopup}
-                          onChange={handleInputChange}
-                          className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#469b47]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#469b47]"></div>
-                      </label>
-                    </div>
-
-                    {/* Auto Top-up Amount */}
-                    {formData.enableAutoTopup && (
-                      <div className="bg-white rounded-xl border border-gray-200 p-4">
-                        <label className="block text-sm font-semibold text-gray-700 mb-3">
-                          Auto Top-up Amount
-                        </label>
-                        <div className="grid grid-cols-2 gap-3">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                autoTopupAmount: '10',
-                              }))
-                            }
-                            className={`p-3 rounded-xl border-2 transition-all duration-200 ${
-                              formData.autoTopupAmount === '10'
-                                ? 'border-[#469b47] bg-green-50 text-[#469b47]'
-                                : 'border-gray-200 hover:border-gray-300'
-                            }`}
-                          >
-                            <div className="text-center">
-                              <div className="font-bold">₱10</div>
-                              <div className="text-xs text-gray-600">
-                                3 tokens
-                              </div>
-                            </div>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                autoTopupAmount: '25',
-                              }))
-                            }
-                            className={`p-3 rounded-xl border-2 transition-all duration-200 ${
-                              formData.autoTopupAmount === '25'
-                                ? 'border-[#469b47] bg-green-50 text-[#469b47]'
-                                : 'border-gray-200 hover:border-gray-300'
-                            }`}
-                          >
-                            <div className="text-center">
-                              <div className="font-bold">₱25</div>
-                              <div className="text-xs text-gray-600">
-                                10 tokens
-                              </div>
-                            </div>
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Free 5 Tokens Welcome Bonus - Redesigned */}
+              {/* Free 5 Tokens Welcome Bonus - Updated */}
               <div className="bg-white border border-green-200 rounded-2xl p-6 shadow-sm">
                 <div className="flex items-start space-x-4">
                   <div className="flex-shrink-0">
@@ -1421,14 +1439,18 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
                         5 Tokens
                       </div>
                       <p className="text-gray-600 text-sm">
-                        For first-time merchants • Worth ₱25
+                        For first-time merchants • Worth ₱125
                       </p>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                       <div className="flex items-center space-x-2 text-sm text-gray-700">
                         <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                        <span>List up to 5 products</span>
+                        <span>Tokens deduct per sale (1 token = 1 transaction) </span>
+                      </div>
+                      <div className="flex items-center space-x-2 text-sm text-gray-700">
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                        <span>Post products (free)</span>
                       </div>
                       <div className="flex items-center space-x-2 text-sm text-gray-700">
                         <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
@@ -1447,7 +1469,7 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
                     <div className="bg-green-50 border border-green-200 rounded-xl p-3">
                       <p className="text-green-800 text-xs">
                         <strong>Note:</strong> Free tokens will be credited
-                        within 24 hours after approval. Additional tokens can be
+                        within 24 hours after approval. Free tokens expire after 30 days of inactivity. Additional tokens can be
                         purchased using your verified e-wallet.
                       </p>
                     </div>
@@ -1493,7 +1515,7 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
                   <div className="flex items-center space-x-3">
                     <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
                     <span>
-                      Automated payouts directly to your verified e-wallet
+                      E-wallet linked for secure account verification
                     </span>
                   </div>
                   <div className="flex items-center space-x-3">
@@ -1522,8 +1544,8 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
                       >
                         Platform Terms and Conditions
                       </button>{' '}
-                      including the permanent e-wallet payout setup and
-                      automated payment processing.
+                      including the e-wallet verification setup and
+                      manual payment processing.
                     </span>
                   </label>
                   {errors.agreeToTerms && (
@@ -1584,15 +1606,14 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
                     <ul className="list-disc list-inside space-y-2 text-sm">
                       <li>Your application will be reviewed within 24 hours</li>
                       <li>
-                        Your verified e-wallet is now set as your permanent
-                        payout method
+                        Your verified e-wallet is saved for future transactions
                       </li>
                       <li>
-                        Once approved, token purchases will auto-transfer to
+                        Once approved, you can manually purchase tokens using
                         your {formData.eWalletProvider.toUpperCase()}
                       </li>
                       <li>
-                        You'll receive SMS alerts for low tokens and payment
+                        You'll receive notifications for token expiry and payment
                         confirmations
                       </li>
                       <li>
@@ -1673,6 +1694,14 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Click outside to close dropdown */}
+        {isBusinessDropdownOpen && (
+          <div 
+            className="fixed inset-0 z-40" 
+            onClick={() => setIsBusinessDropdownOpen(false)}
+          />
+        )}
       </div>
     </div>
   );

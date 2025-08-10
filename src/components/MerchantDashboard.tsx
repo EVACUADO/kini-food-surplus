@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import {
   Leaf,
   Coins,
@@ -8,7 +7,6 @@ import {
   TrendingUp,
   Users,
   MessageCircle,
-  Settings,
   Bell,
   Plus,
   Calendar,
@@ -18,19 +16,16 @@ import {
   CheckCircle,
   XCircle,
   Camera,
-  Utensils,
   LogOut,
   Menu,
-  Search,
 } from 'lucide-react';
+import PricingComponent from "./PricingComponent";
 
 const MerchantDashboard = () => {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showTokenModal, setShowTokenModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
   const [merchant, setMerchant] = useState<any>({
     business_name: 'Green Restaurant',
     tokens_balance: 5,
@@ -47,6 +42,7 @@ const MerchantDashboard = () => {
     originalPrice: '',
     quantity: '',
     expiryDate: '',
+    discountPercentage: 60, // Default 60% off
     image: null as File | null,
   });
 
@@ -60,7 +56,6 @@ const MerchantDashboard = () => {
       const currentUser = localStorage.getItem('currentUser');
       if (currentUser) {
         const userData = JSON.parse(currentUser);
-        setUser(userData);
 
         // Mock data loading - replace with actual API calls
         setMerchant({
@@ -96,8 +91,10 @@ const MerchantDashboard = () => {
           description: productData.description || 'Fresh surplus food',
           original_price: Number(productData.originalPrice),
           discounted_price: calculateDiscount(
-            Number(productData.originalPrice)
+            Number(productData.originalPrice),
+            productData.discountPercentage
           ),
+          discount_percentage: productData.discountPercentage,
           quantity: Number(productData.quantity),
           available_quantity: Number(productData.quantity),
           expiry_date: productData.expiryDate,
@@ -105,7 +102,7 @@ const MerchantDashboard = () => {
           created_at: new Date().toISOString(),
         };
 
-        setProducts((prev) => [...prev, newProduct]);
+        setProducts((prev: any[]) => [...prev, newProduct]);
         alert('Product uploaded successfully!');
         setShowUploadModal(false);
         setProductData({
@@ -114,14 +111,13 @@ const MerchantDashboard = () => {
           originalPrice: '',
           quantity: '',
           expiryDate: '',
+          discountPercentage: 60, // Reset to default
           image: null,
         });
 
-        // Update merchant tokens (mock)
-        setMerchant((prev) => ({
-          ...prev,
-          tokens_balance: Math.max(0, prev.tokens_balance - 1),
-        }));
+        // NOTE: Tokens are NO LONGER reduced here
+        // Tokens will only be reduced after successful transaction completion in chat
+        
       } catch (error) {
         console.error('Error uploading product:', error);
         alert('An error occurred. Please try again.');
@@ -133,10 +129,10 @@ const MerchantDashboard = () => {
     uploadProduct();
   };
 
-  const handleTokenPurchase = async (amount: number, price: number) => {
+  const handleTokenPurchase = async (amount: number) => {
     try {
       // Mock token purchase - replace with actual payment integration
-      setMerchant((prev) => ({
+      setMerchant((prev: any) => ({
         ...prev,
         tokens_balance: prev.tokens_balance + amount,
       }));
@@ -151,11 +147,13 @@ const MerchantDashboard = () => {
 
   const handleSignOut = async () => {
     localStorage.removeItem('currentUser');
-    navigate('/');
+    // Mock navigation - replace with actual router navigation
+    window.location.href = '/';
   };
 
-  const calculateDiscount = (originalPrice: number) => {
-    return Math.round(originalPrice * 0.3); // 70% off
+  const calculateDiscount = (originalPrice: number, discountPercentage: number = 60) => {
+    const discountMultiplier = (100 - discountPercentage) / 100;
+    return Math.round(originalPrice * discountMultiplier);
   };
 
   const getStatusColor = (status: string) => {
@@ -193,14 +191,14 @@ const MerchantDashboard = () => {
         <div className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40">
           <div className="bg-white h-full w-4/5 max-w-sm p-4">
             <div className="flex justify-between items-center mb-8">
-              <Link to="/" className="flex items-center space-x-2">
+              <a href="/" className="flex items-center space-x-2">
                 <img
-                  src="/Kini white logo.png"
+                  src="/Kini green.png"
                   alt="Kini Logo"
                   className="h-8 w-8 object-cover rounded-xl"
                 />
                 <span className="text-lg font-bold text-[#469b47]">Kini</span>
-              </Link>
+              </a>
               <button onClick={() => setMobileMenuOpen(false)} className="p-1">
                 <XCircle className="w-6 h-6 text-gray-500" />
               </button>
@@ -290,7 +288,7 @@ const MerchantDashboard = () => {
                 <Menu className="w-5 h-5" />
               </button>
 
-              <Link to="/" className="flex items-center space-x-3">
+              <a href="/" className="flex items-center space-x-3">
                 <div className="h-10 w-10">
                   <img
                     src="/Kini green.png"
@@ -306,7 +304,7 @@ const MerchantDashboard = () => {
                     Merchant Dashboard
                   </p>
                 </div>
-              </Link>
+              </a>
             </div>
 
             <div className="flex items-center space-x-2 sm:space-x-4">
@@ -592,6 +590,12 @@ const MerchantDashboard = () => {
                           </span>
                         </div>
                         <div className="flex justify-between text-xs sm:text-sm">
+                          <span className="text-gray-600">Discount:</span>
+                          <span className="text-green-600 font-medium">
+                            {product.discount_percentage}% off
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-xs sm:text-sm">
                           <span className="text-gray-600">Available:</span>
                           <span>
                             {product.available_quantity}/{product.quantity}
@@ -777,12 +781,47 @@ const MerchantDashboard = () => {
                   placeholder="Enter original price"
                   required
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Discount Percentage
+                </label>
+                <select
+                  value={productData.discountPercentage}
+                  onChange={(e) =>
+                    setProductData({
+                      ...productData,
+                      discountPercentage: Number(e.target.value),
+                    })
+                  }
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#469b47] focus:border-[#469b47] transition-all duration-300 text-sm sm:text-base"
+                >
+                  <option value={60}>60% off (Default)</option>
+                  <option value={65}>65% off</option>
+                  <option value={70}>70% off</option>
+                  <option value={75}>75% off</option>
+                  <option value={80}>80% off</option>
+                  <option value={85}>85% off</option>
+                  <option value={90}>90% off (Maximum)</option>
+                </select>
                 {productData.originalPrice && (
                   <div className="mt-2 p-2 sm:p-3 bg-[#469b47]/10 rounded-lg">
                     <p className="text-xs sm:text-sm text-[#469b47] font-medium">
                       AI-Assisted Pricing: ₱
-                      {calculateDiscount(Number(productData.originalPrice))}{' '}
-                      (70% off)
+                      {calculateDiscount(
+                        Number(productData.originalPrice),
+                        productData.discountPercentage
+                      )}{' '}
+                      ({productData.discountPercentage}% off)
+                    </p>
+                    <p className="text-xs text-gray-600 mt-1">
+                      You save customers: ₱
+                      {Number(productData.originalPrice) -
+                        calculateDiscount(
+                          Number(productData.originalPrice),
+                          productData.discountPercentage
+                        )}
                     </p>
                   </div>
                 )}
@@ -848,6 +887,12 @@ const MerchantDashboard = () => {
                 </div>
               </div>
 
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p className="text-xs text-blue-800 font-medium">
+                  📝 Note: Tokens will be deducted only after a successful transaction is completed in the message chat, not when uploading products.
+                </p>
+              </div>
+
               <div className="flex space-x-3 sm:space-x-4 pt-2 sm:pt-4">
                 <button
                   type="button"
@@ -872,62 +917,10 @@ const MerchantDashboard = () => {
       {/* Token Purchase Modal */}
       {showTokenModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-md w-full mx-4">
-            <h3 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6">
-              Buy Tokens
-            </h3>
-            <div className="space-y-3 sm:space-y-4">
-              <div className="bg-gradient-to-r from-[#469b47]/10 to-[#469b47]/5 p-4 sm:p-6 rounded-xl border border-[#469b47]/20">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-base sm:text-lg">
-                    5 Tokens
-                  </span>
-                  <span className="text-[#469b47] font-bold text-lg sm:text-xl">
-                    ₱25
-                  </span>
-                </div>
-                <p className="text-xs sm:text-sm text-gray-600 mt-1 sm:mt-2">
-                  Each token allows you to post one product
-                </p>
-              </div>
-
-              <div className="bg-gradient-to-r from-[#469b47]/10 to-[#469b47]/5 p-4 sm:p-6 rounded-xl border border-[#469b47]/20">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-base sm:text-lg">
-                    10 Tokens
-                  </span>
-                  <span className="text-[#469b47] font-bold text-lg sm:text-xl">
-                    ₱50
-                  </span>
-                </div>
-                <p className="text-xs sm:text-sm text-gray-600 mt-1 sm:mt-2">
-                  Best value for active merchants
-                </p>
-              </div>
-
-              <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 sm:p-4">
-                <p className="text-xs sm:text-sm text-yellow-800">
-                  <strong>Note:</strong> Tokens expire in 30 days from purchase
-                  date
-                </p>
-              </div>
-
-              <div className="flex space-x-3 sm:space-x-4 pt-2 sm:pt-4">
-                <button
-                  onClick={() => setShowTokenModal(false)}
-                  className="flex-1 px-4 sm:px-6 py-2 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-300 font-medium text-sm sm:text-base"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => handleTokenPurchase(3, 10)}
-                  className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-[#469b47] text-white rounded-xl hover:bg-[#3A7D44] transition-all duration-300 transform hover:scale-105 shadow-lg font-medium text-sm sm:text-base"
-                >
-                  Purchase
-                </button>
-              </div>
-            </div>
-          </div>
+          <PricingComponent
+            onTokenPurchase={handleTokenPurchase}
+            onClose={() => setShowTokenModal(false)}
+          />
         </div>
       )}
     </div>

@@ -89,7 +89,8 @@ const CustomerDashboard = () => {
   };
 
   const handleSignOut = async () => {
-    await authFunctions.signOut();
+    localStorage.removeItem('currentUser');
+    // Mock navigation - replace with actual router navigation
     window.location.href = '/';
   };
 
