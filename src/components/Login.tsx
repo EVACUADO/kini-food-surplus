@@ -125,9 +125,9 @@ const Login: React.FC<LoginProps> = ({
         } else {
           // Fallback navigation
           if (user.role === 'merchant') {
-            navigate('/merchant-dashboard');
+            navigate('/MerchantDashboard');
           } else {
-            navigate('/customer-dashboard');
+            navigate('/CustomerDashboard');
           }
         }
       } catch (error) {

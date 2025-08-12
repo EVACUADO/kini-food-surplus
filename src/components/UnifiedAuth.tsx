@@ -46,9 +46,9 @@ const UnifiedAuth: React.FC<UnifiedAuthProps> = ({ initialType = 'login' }) => {
 
   const handleLoginSuccess = (userType: 'customer' | 'merchant') => {
     if (userType === 'customer') {
-      navigate('/customer/dashboard');
+      navigate('/CustomerDashboard');
     } else {
-      navigate('/merchant/dashboard');
+      navigate('/MerchantDashboard');
     }
   };
 

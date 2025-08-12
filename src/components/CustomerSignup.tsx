@@ -309,6 +309,14 @@ const CustomerSignup: React.FC<CustomerSignupProps> = ({
     setIsLoading(true);
 
     try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+      const supabaseAnon = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+      if (!supabaseUrl || !supabaseAnon) {
+        alert('Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
+        setIsLoading(false);
+        return;
+      }
+
       let profilePictureUrl: string | null = null;
       if (formData.profilePicture) {
         profilePictureUrl = await uploadToStorage(
@@ -331,14 +339,20 @@ const CustomerSignup: React.FC<CustomerSignupProps> = ({
       ]);
 
       if (error) {
+        // eslint-disable-next-line no-console
+        console.error('Customer signup insert error:', error);
         setErrors((prev) => ({ ...prev, general: error.message }));
+        alert(`Signup failed: ${error.message}`);
         setIsLoading(false);
         return;
       }
 
       alert('🎉 Welcome to Kini! Your account has been created successfully!');
     } catch (err: any) {
+      // eslint-disable-next-line no-console
+      console.error('Customer signup unexpected error:', err);
       setErrors((prev) => ({ ...prev, general: err.message || 'Signup failed' }));
+      alert(`Signup failed: ${err?.message || 'Unexpected error'}`);
     } finally {
       setIsLoading(false);
     }

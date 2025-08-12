@@ -472,6 +472,14 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
     setIsLoading(true);
 
     try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+      const supabaseAnon = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+      if (!supabaseUrl || !supabaseAnon) {
+        alert('Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
+        setIsLoading(false);
+        return;
+      }
+
       // Upload documents/images if provided
       const [
         dtiUrl,
@@ -491,7 +499,9 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
         formData.storefrontPhoto ? uploadToStorage(formData.storefrontPhoto, 'merchants/storefront-photo') : Promise.resolve(null),
       ]);
 
-      const { error } = await supabase.from('merchant_signups').insert([
+      const { data: inserted, error } = await supabase
+        .from('merchant_signups')
+        .insert([
         {
           business_name: formData.businessName,
           business_branch: formData.businessBranch || null,
@@ -514,19 +524,42 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
           agree_to_terms: formData.agreeToTerms,
           agree_food_safety: formData.agreeFoodSafety,
         },
-      ]);
+      ])
+        .select('id')
+        .single();
 
-      if (error) {
-        setErrors((prev) => ({ ...prev, general: error.message }));
+      if (error || !inserted) {
+        // eslint-disable-next-line no-console
+        console.error('Merchant signup insert error:', error);
+        setErrors((prev) => ({ ...prev, general: error?.message || 'Insert failed' }));
+        alert(`Submission failed: ${error?.message || 'Insert failed'}`);
         setIsLoading(false);
         return;
       }
 
-      alert(
-        '🎉 Application submitted successfully! Your e-wallet has been verified and saved for future transactions. Please wait 24 hours for verification. You will receive an email with further instructions.'
-      );
+      // Insert readable per-line entries preserving order
+      const merchantId = inserted.id as string;
+      if (Array.isArray(formData.lineOfBusiness) && formData.lineOfBusiness.length > 0) {
+        const rows = formData.lineOfBusiness.map((label, idx) => ({
+          merchant_signup_id: merchantId,
+          line_label: label,
+          order_index: idx,
+        }));
+        const { error: lobError } = await supabase
+          .from('merchant_signup_line_of_business')
+          .insert(rows);
+        if (lobError) {
+          // eslint-disable-next-line no-console
+          console.warn('Failed to save line_of_business readable rows:', lobError.message);
+        }
+      }
+
+      alert('🎉 Application submitted successfully! Your details have been submitted.');
     } catch (err: any) {
+      // eslint-disable-next-line no-console
+      console.error('Merchant signup unexpected error:', err);
       setErrors((prev) => ({ ...prev, general: err.message || 'Signup failed' }));
+      alert(`Submission failed: ${err?.message || 'Unexpected error'}`);
     } finally {
       setIsLoading(false);
     }
@@ -1808,4 +1841,4 @@ function App() {
   );
 }
 
-export default App;
+export default MerchantSignup;
