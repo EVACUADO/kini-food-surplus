@@ -256,7 +256,7 @@ const PricingComponent: React.FC<PricingComponentProps> = ({
                     },
                     { text: "Priority support (24/7)" },
                     { text: "Low Tokens SMS Alert" },
-                    { text: "Advanced dashboard" },
+                    { text: "Intuitive Dashboard" },
                   ].map((feature, index) => (
                     <div key={index} className="flex items-start space-x-2 sm:space-x-3">
                       <div
@@ -308,7 +308,7 @@ const PricingComponent: React.FC<PricingComponentProps> = ({
                   className="text-xs font-semibold text-center"
                   style={{ color: colors.primary }}
                 >
-                   ⚠️ SMS-Alert • ❌ Cancel anytime • 📋 No contracts
+                   ⚠️ SMS-Alert • ✅ Dashboard • 📋 No contracts
                 </p>
               </div>
             </div>
@@ -404,8 +404,8 @@ const PricingComponent: React.FC<PricingComponentProps> = ({
                       badge: "Save 20%",
                     },
                     { text: "Business analytics" },
-                    { text: "Team collaboration" },
-                    { text: "Custom integrations" },
+                    { text: "Post Visibility" },
+                    { text: "Advanced reporting" },
                   ].map((feature, index) => (
                     <div key={index} className="flex items-start space-x-2 sm:space-x-3">
                       <div
@@ -469,7 +469,7 @@ const PricingComponent: React.FC<PricingComponentProps> = ({
                   className="text-xs font-semibold text-center"
                   style={{ color: colors.purple }}
                 >
-                  📊 Advanced reporting • 👥 Team features
+                  📊 Advanced reporting • 👥 Post Visibility
                 </p>
               </div>
             </div>
@@ -575,7 +575,7 @@ const PricingComponent: React.FC<PricingComponentProps> = ({
 
               <div className="mt-3 sm:mt-6 p-2 sm:p-3 bg-blue-500/30 border border-blue-300/50 rounded-lg sm:rounded-xl backdrop-blur-sm">
                 <p className="text-xs text-white text-center font-semibold">
-                  🎁 Free token rollover + VIP support
+                  🎁 Discounted Tokens + VIP support
                 </p>
               </div>
             </div>
