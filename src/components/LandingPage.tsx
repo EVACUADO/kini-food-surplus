@@ -122,12 +122,14 @@ const LandingPage = () => {
                 alt="Kini Logo"
                 className="h-10 w-10 rounded-xl object-cover"
               />
-              <span
-                className="text-xl font-bold"
-                style={{ color: colors.textLight }}
-              >
-                Kini Food Surplus
-              </span>
+              <div className="text-left">
+                <div className="text-xl font-bold text-white">
+                  Kini Food Surplus
+                </div>
+                <div className="text-sm font-normal text-white opacity-80">
+                  Marketplace
+                </div>
+              </div>
             </div>
 
             {/* Desktop Navigation */}
@@ -435,9 +437,19 @@ const LandingPage = () => {
       <section id="about" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              About Kini Food Surplus
-            </h2>
+            <div className="text-center mb-4">
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+                About
+              </h2>
+              <div className="flex flex-col items-center">
+                <div className="text-xl font-bold text-[#469b47]">
+                  Kini Food Surplus
+                </div>
+                <div className="text-sm font-normal text-[#469b47] opacity-80">
+                  Marketplace
+                </div>
+              </div>
+            </div>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
               We're on a mission to create a sustainable food ecosystem that
               benefits everyone - customers save money, merchants reduce waste,
@@ -1035,7 +1047,14 @@ const LandingPage = () => {
                   alt="Kini Logo"
                   className="h-10 w-10 rounded-lg"
                 />
-                <span className="text-xl font-bold">Kini Food Surplus</span>
+                <div>
+                  <div className="text-xl font-bold text-white">
+                    Kini Food Surplus
+                  </div>
+                  <div className="text-sm font-normal text-white opacity-80">
+                    Marketplace
+                  </div>
+                </div>
               </div>
               <p className="text-gray-400 text-sm">
                 Reducing food waste, one meal at a time through our surplus food

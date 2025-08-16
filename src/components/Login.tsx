@@ -12,7 +12,6 @@ import {
   Sparkles,
   CheckCircle,
 } from 'lucide-react';
-import AppHeader from './AppHeader';
 
 interface LoginProps {
   onBack?: () => void;
@@ -157,10 +156,6 @@ const Login: React.FC<LoginProps> = ({
 
         {/* Welcome section */}
         <div className="mt-8 mb-6">
-          <div className="mb-4">
-            <AppHeader title="Sign In" showBackToMain={true} className="justify-center" />
-          </div>
-          
           <div className="relative inline-block">
             <div className="absolute -top-2 -right-2 animate-bounce">
               <Sparkles className="w-6 h-6 text-yellow-400" />
@@ -410,7 +405,7 @@ const Login: React.FC<LoginProps> = ({
 
       {/* Switch to signup */}
       <div className="text-center">
-        <p className="text-sm text-gray-600 mb-4">New to Kini Food Surplus?</p>
+        <p className="text-sm text-gray-600 mb-4">New here?</p>
         <button
           type="button"
           onClick={onSwitchToSignup}
