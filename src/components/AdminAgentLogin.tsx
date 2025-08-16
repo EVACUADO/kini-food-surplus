@@ -11,7 +11,6 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { login } from '../lib/auth';
-import AppHeader from './AppHeader';
 
 interface AdminAgentLoginProps {
   userType: 'admin' | 'agent';
@@ -128,7 +127,7 @@ const AdminAgentLogin: React.FC<AdminAgentLoginProps> = ({ userType }) => {
   };
 
   const getTitle = () => {
-    return userType === 'admin' ? 'Admin Portal' : 'Agent Portal';
+    return userType === 'admin' ? 'Administration' : 'Verification';
   };
 
   const getSubtitle = () => {
@@ -141,9 +140,6 @@ const AdminAgentLogin: React.FC<AdminAgentLoginProps> = ({ userType }) => {
     return userType === 'admin' ? Shield : CheckCircle;
   };
 
-  const getIconColor = () => {
-    return userType === 'admin' ? 'text-red-600' : 'text-blue-600';
-  };
 
   const getBgColor = () => {
     return userType === 'admin' ? 'bg-red-500' : 'bg-blue-500';
@@ -156,10 +152,6 @@ const AdminAgentLogin: React.FC<AdminAgentLoginProps> = ({ userType }) => {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="mb-6">
-            <AppHeader title={getTitle()} showBackToMain={true} className="justify-center" />
-          </div>
-          
           <div className="relative inline-block mb-4">
             <div className="absolute -top-2 -right-2 animate-bounce">
               <Sparkles className="w-6 h-6 text-yellow-400" />
@@ -294,7 +286,7 @@ const AdminAgentLogin: React.FC<AdminAgentLoginProps> = ({ userType }) => {
                 <span>Signing in...</span>
               </div>
             ) : (
-              `Sign In to ${getTitle()}`
+              `Sign In`
             )}
           </button>
         </form>
@@ -305,7 +297,7 @@ const AdminAgentLogin: React.FC<AdminAgentLoginProps> = ({ userType }) => {
             href="/"
             className="text-sm text-gray-500 hover:text-[#469b47] transition-colors font-medium hover:underline"
           >
-            ← Back to main site
+            ← Back
           </a>
         </div>
 
