@@ -45,7 +45,7 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
     useGPS: false,
     phoneNumber: '',
     businessEmail: '',
-    lineOfBusiness: [] as string[],
+    lineOfBusiness: '', // Changed from array to single string
     eWalletProvider: '', // 'gcash' or 'maya'
     eWallet: '',
     otpCode: '',
@@ -140,7 +140,7 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
           !formData.businessLocation.trim() &&
           !formData.phoneNumber.trim() &&
           !formData.businessEmail.trim() &&
-          formData.lineOfBusiness.length === 0
+          !formData.lineOfBusiness.trim()
         );
       case 2:
         return (
@@ -191,15 +191,16 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
   const handleLineOfBusinessChange = (business: string) => {
     setFormData((prev) => ({
       ...prev,
-      lineOfBusiness: prev.lineOfBusiness.includes(business)
-        ? prev.lineOfBusiness.filter((b) => b !== business)
-        : [...prev.lineOfBusiness, business],
+      lineOfBusiness: business, // Set single selection
     }));
 
     // Hide empty form error when user makes selection
     if (showEmptyFormError) {
       setShowEmptyFormError(false);
     }
+    
+    // Close dropdown after selection
+    setIsBusinessDropdownOpen(false);
   };
 
   const handleFileChange = (
@@ -337,9 +338,8 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
       newErrors.businessEmail = 'Please enter a valid email address';
     }
 
-    if (formData.lineOfBusiness.length === 0) {
-      newErrors.lineOfBusiness =
-        'Please select at least one line of business';
+    if (!formData.lineOfBusiness.trim()) {
+      newErrors.lineOfBusiness = 'Please select your line of business';
     }
 
     setErrors(newErrors);
@@ -463,7 +463,7 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
         use_gps: formData.useGPS,
         phone_number: formData.phoneNumber,
         business_email: formData.businessEmail,
-        line_of_business: formData.lineOfBusiness,
+        line_of_business: [formData.lineOfBusiness], // Convert single selection to array for backend compatibility
         dti_sec_url: dtiUrl,
         bir_certificate_url: birUrl,
         business_permit_url: permitUrl,
@@ -926,35 +926,28 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
                 <label className="block text-sm font-semibold text-gray-700">
                   Line of Business{' '}
                   <span className="text-gray-500 font-normal">
-                    (Select all that apply)
+                    (Select one)
                   </span>
                 </label>
                 
-                {/* Selected Items Display */}
-                {formData.lineOfBusiness.length > 0 && (
+                {/* Selected Item Display */}
+                {formData.lineOfBusiness && (
                   <div className="bg-green-50 border border-green-200 rounded-2xl p-4 mb-4">
                     <div className="flex items-center space-x-2 mb-3">
                       <Check className="w-4 h-4 text-green-600" />
                       <span className="text-sm font-semibold text-green-800">
-                        Selected ({formData.lineOfBusiness.length})
+                        Selected
                       </span>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      {formData.lineOfBusiness.map((business) => (
-                        <div
-                          key={business}
-                          className="bg-white border border-green-300 rounded-xl px-3 py-2 flex items-center space-x-2 text-sm"
-                        >
-                          <span className="text-gray-700">{business}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleLineOfBusinessChange(business)}
-                            className="text-green-600 hover:text-green-800 transition-colors"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ))}
+                    <div className="bg-white border border-green-300 rounded-xl px-3 py-2 flex items-center space-x-2 text-sm">
+                      <span className="text-gray-700">{formData.lineOfBusiness}</span>
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, lineOfBusiness: '' }))}
+                        className="text-green-600 hover:text-green-800 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
                 )}
@@ -994,20 +987,31 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
                       {filteredBusinessOptions.length > 0 ? (
                         <div className="p-2">
                           {filteredBusinessOptions.map((business) => (
-                            <label
+                            <button
                               key={business}
-                              className="flex items-center space-x-3 cursor-pointer p-4 rounded-xl hover:bg-gray-50 transition-all duration-200 group border border-transparent hover:border-gray-200"
+                              type="button"
+                              onClick={() => handleLineOfBusinessChange(business)}
+                              className={`w-full text-left p-4 rounded-xl hover:bg-gray-50 transition-all duration-200 border border-transparent hover:border-gray-200 ${
+                                formData.lineOfBusiness === business 
+                                  ? 'bg-green-50 border-green-200 text-green-800' 
+                                  : 'text-gray-700 hover:text-gray-900'
+                              }`}
                             >
-                              <input
-                                type="checkbox"
-                                checked={formData.lineOfBusiness.includes(business)}
-                                onChange={() => handleLineOfBusinessChange(business)}
-                                className="h-5 w-5 text-[#469b47] focus:ring-[#469b47] border-gray-300 rounded transition-all duration-200 flex-shrink-0"
-                              />
-                              <span className="text-sm text-gray-700 group-hover:text-gray-900 transition-colors font-medium">
-                                {business}
-                              </span>
-                            </label>
+                              <div className="flex items-center space-x-3">
+                                <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                                  formData.lineOfBusiness === business 
+                                    ? 'border-green-500 bg-green-500' 
+                                    : 'border-gray-300'
+                                }`}>
+                                  {formData.lineOfBusiness === business && (
+                                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                                  )}
+                                </div>
+                                <span className="text-sm font-medium">
+                                  {business}
+                                </span>
+                              </div>
+                            </button>
                           ))}
                         </div>
                       ) : (
