@@ -20,6 +20,8 @@ import {
   Menu,
 } from 'lucide-react';
 import PricingComponent from "./PricingComponent";
+import { logout } from '../lib/auth';
+import AppHeader from './AppHeader';
 
 const MerchantDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -146,9 +148,7 @@ const MerchantDashboard = () => {
   };
 
   const handleSignOut = async () => {
-    localStorage.removeItem('currentUser');
-    // Mock navigation - replace with actual router navigation
-    window.location.href = '/';
+    logout();
   };
 
   const calculateDiscount = (originalPrice: number, discountPercentage: number = 60) => {
@@ -288,22 +288,22 @@ const MerchantDashboard = () => {
                 <Menu className="w-5 h-5" />
               </button>
 
-              <a href="/" className="flex items-center space-x-3">
-                <div className="h-10 w-10">
+              <AppHeader 
+                title={merchant?.business_name || 'Merchant'} 
+                showBackToMain={true} 
+                className="hidden sm:flex"
+              />
+              
+              {/* Mobile logo only */}
+              <a href="/" className="flex sm:hidden items-center space-x-2">
+                <div className="h-8 w-8">
                   <img
                     src="/Kini green.png"
                     alt="Kini Logo"
                     className="h-full w-full object-cover rounded-xl"
                   />
                 </div>
-                <div className="hidden sm:block">
-                  <span className="text-xl font-bold text-[#469b47]">
-                    Kini Food Surplus
-                  </span>
-                  <p className="text-xs text-gray-600 -mt-1">
-                    Merchant Dashboard
-                  </p>
-                </div>
+                <span className="text-lg font-bold text-[#469b47]">Kini</span>
               </a>
             </div>
 

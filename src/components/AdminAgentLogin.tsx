@@ -10,6 +10,8 @@ import {
   CheckCircle,
   Sparkles,
 } from 'lucide-react';
+import { login } from '../lib/auth';
+import AppHeader from './AppHeader';
 
 interface AdminAgentLoginProps {
   userType: 'admin' | 'agent';
@@ -66,7 +68,7 @@ const AdminAgentLogin: React.FC<AdminAgentLoginProps> = ({ userType }) => {
     // Simulate API call with timeout
     setTimeout(() => {
       try {
-        // Mock authentication data for admin and agent
+        // Demo credentials
         const mockUsers = [
           {
             email: 'admin@kini.com',
@@ -100,15 +102,12 @@ const AdminAgentLogin: React.FC<AdminAgentLoginProps> = ({ userType }) => {
           );
         }
 
-        // Store user data in localStorage (simulating auth context)
-        localStorage.setItem(
-          'currentUser',
-          JSON.stringify({
-            email: user.email,
-            role: user.role,
-            name: user.name,
-          })
-        );
+        // Store user data using secure login function
+        login({
+          email: user.email,
+          role: user.role,
+          name: user.name,
+        });
 
         // Navigate to appropriate panel
         if (user.role === 'admin') {
@@ -157,17 +156,19 @@ const AdminAgentLogin: React.FC<AdminAgentLoginProps> = ({ userType }) => {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
+          <div className="mb-6">
+            <AppHeader title={getTitle()} showBackToMain={true} className="justify-center" />
+          </div>
+          
           <div className="relative inline-block mb-4">
             <div className="absolute -top-2 -right-2 animate-bounce">
               <Sparkles className="w-6 h-6 text-yellow-400" />
             </div>
             <div className={`w-20 h-20 ${getBgColor()} rounded-2xl flex items-center justify-center shadow-lg`}>
-              <IconComponent className={`w-10 h-10 ${getIconColor()}`} />
+              <IconComponent className={`w-10 h-10 text-white`} />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {getTitle()}
-          </h1>
+          
           <p className="text-gray-600 text-sm">
             {getSubtitle()}
           </p>

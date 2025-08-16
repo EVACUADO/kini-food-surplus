@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Menu,
   X,
@@ -10,20 +10,14 @@ import {
   Shield,
   Award,
   Phone,
-  Mail,
   MapPin,
-  ChevronDown,
   Check,
   ArrowRight,
   Leaf,
-  Globe,
   Target,
-  HelpCircle,
   MessageCircle,
-  FileText,
   Star,
   BarChart3,
-  Handshake,
   Search,
 } from 'lucide-react';
 import UnifiedAuth from './UnifiedAuth';

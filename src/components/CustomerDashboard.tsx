@@ -1,25 +1,23 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { authFunctions, productFunctions, orderFunctions, messageFunctions } from '../lib/supabase';
+import { logout } from '../lib/auth';
 import {
   MapPin,
   MessageCircle,
   Clock,
   CheckCircle,
   XCircle,
-  Camera,
   Send,
-  Leaf,
   User,
   ShoppingBag,
   Search,
   Bell,
-  Settings,
   LogOut,
-  Utensils,
   Paperclip,
   Menu,
 } from 'lucide-react';
+import AppHeader from './AppHeader';
 
 const CustomerDashboard = () => {
   const [activeTab, setActiveTab] = useState('map');
@@ -89,9 +87,7 @@ const CustomerDashboard = () => {
   };
 
   const handleSignOut = async () => {
-    localStorage.removeItem('currentUser');
-    // Mock navigation - replace with actual router navigation
-    window.location.href = '/';
+    logout();
   };
 
   const getStatusColor = (status: string) => {
@@ -210,19 +206,22 @@ const CustomerDashboard = () => {
                 <Menu className="w-5 h-5" />
               </button>
 
-              <Link to="/" className="flex items-center space-x-3">
-                <div className="h-10 w-10">
+              <AppHeader 
+                title={user?.full_name || 'Customer'} 
+                showBackToMain={true} 
+                className="hidden sm:flex"
+              />
+              
+              {/* Mobile logo only */}
+              <Link to="/" className="flex sm:hidden items-center space-x-2">
+                <div className="h-8 w-8">
                   <img
                     src="/Kini green.png"
                     alt="Kini Logo"
                     className="h-full w-full object-cover rounded-xl"
                   />
                 </div>
-                <div className="hidden sm:block">
-                  <span className="text-xl font-bold text-[#469b47]">
-                    Kini Food Surplus
-                  </span>
-                </div>
+                <span className="text-lg font-bold text-[#469b47]">Kini</span>
               </Link>
 
               <div className="hidden md:flex items-center space-x-2 text-sm text-gray-600">

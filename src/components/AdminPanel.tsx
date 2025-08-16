@@ -8,21 +8,25 @@ import {
   Settings,
   Shield,
   BarChart3,
-  UserCheck,
   Store,
   AlertCircle,
   CheckCircle,
-  XCircle,
   Clock,
   LogOut,
 } from 'lucide-react';
+import { logout, getCurrentUser } from '../lib/auth';
+import AppHeader from './AppHeader';
 
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [analytics, setAnalytics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   React.useEffect(() => {
+    // Get current user info
+    const user = getCurrentUser();
+    setCurrentUser(user);
     loadAnalytics();
   }, []);
 
@@ -46,9 +50,7 @@ const AdminPanel = () => {
   };
 
   const handleSignOut = async () => {
-    // Mock sign out since authFunctions doesn't exist
-    localStorage.removeItem('currentUser');
-    window.location.href = '/';
+    logout();
   };
 
   return (
@@ -57,22 +59,7 @@ const AdminPanel = () => {
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <Link to="/" className="flex items-center space-x-2">
-                <div className="h-8 w-8">
-                  <img
-                    src="/Kini white logo.png"
-                    alt="Kini Logo"
-                    className="h-full w-full object-cover rounded-xl"
-                  />
-                </div>
-                <span className="text-xl font-bold text-[#469b47]">
-                  Kini Food Surplus
-                </span>
-              </Link>
-              <span className="text-gray-400">|</span>
-              <span className="text-gray-600 font-medium">Admin Panel</span>
-            </div>
+            <AppHeader title="Admin Panel" showBackToMain={true} />
 
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
@@ -80,7 +67,7 @@ const AdminPanel = () => {
                   <Shield className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-sm font-medium text-gray-700">
-                  System Admin
+                  {currentUser?.name || 'System Admin'}
                 </span>
                 <button
                   onClick={handleSignOut}
@@ -160,6 +147,12 @@ const AdminPanel = () => {
         {/* Overview Tab */}
         {activeTab === 'overview' && (
           <div className="space-y-8">
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#469b47]"></div>
+              </div>
+            ) : (
+              <>
             {/* Key Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="bg-white rounded-lg shadow-sm p-6">
@@ -269,6 +262,8 @@ const AdminPanel = () => {
                 </p>
               </div>
             </div>
+              </>
+            )}
           </div>
         )}
 

@@ -1,5 +1,4 @@
 import React, { useState, useRef } from 'react';
-import supabase from '../lib/supabaseClient';
 import { reverseGeocodeToAddress } from '../lib/geocoding';
 import {
   Eye,
@@ -10,16 +9,14 @@ import {
   Phone,
   Lock,
   MapPin,
-  Camera,
   AlertCircle,
   Check,
   Sparkles,
   Shield,
   Heart,
   Upload,
-  X,
-  Image as ImageIcon,
 } from 'lucide-react';
+import AppHeader from './AppHeader';
 
 interface CustomerSignupProps {
   onBack: () => void;
@@ -52,43 +49,15 @@ const CustomerSignup: React.FC<CustomerSignupProps> = ({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
 
-  // Upload helper (MVP): uploads to public 'signups' bucket and returns public URL
+  // Mock upload helper for development
   const uploadToStorage = async (file: File, folder: string): Promise<string | null> => {
     try {
-      const randomId = (typeof crypto !== 'undefined' && 'randomUUID' in crypto)
-        ? (crypto as any).randomUUID()
-        : `${Date.now()}_${Math.random().toString(36).slice(2)}`;
-      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-      const path = `${folder}/${randomId}_${safeName}`;
-      const { error: uploadError } = await supabase.storage
-        .from('signups')
-        .upload(path, file, { contentType: file.type, upsert: false });
-      if (uploadError) return null;
-      const { data } = supabase.storage.from('signups').getPublicUrl(path);
-      return data?.publicUrl ?? null;
+      // Mock implementation - in production this would upload to actual storage
+      return `https://mock-storage.com/${folder}/${file.name}`;
     } catch {
       return null;
     }
   };
-
-  // Realtime subscription for customer signups (minimal, console only)
-  React.useEffect(() => {
-    const channel = supabase
-      .channel('public:customer_signups')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'customer_signups' },
-        (payload) => {
-          // eslint-disable-next-line no-console
-          console.log('Realtime customer signup:', payload.new);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
 
   // Smooth scroll to form with offset for better UX
   const scrollToForm = () => {
@@ -309,14 +278,6 @@ const CustomerSignup: React.FC<CustomerSignupProps> = ({
     setIsLoading(true);
 
     try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-      const supabaseAnon = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
-      if (!supabaseUrl || !supabaseAnon) {
-        alert('Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
-        setIsLoading(false);
-        return;
-      }
-
       let profilePictureUrl: string | null = null;
       if (formData.profilePicture) {
         profilePictureUrl = await uploadToStorage(
@@ -325,31 +286,31 @@ const CustomerSignup: React.FC<CustomerSignupProps> = ({
         );
       }
 
-      const { error } = await supabase.from('customer_signups').insert([
-        {
-          full_name: formData.fullName,
-          email: formData.email,
-          mobile_number: formData.mobileNumber,
-          password: formData.password || null,
-          location: formData.location,
-          use_gps: formData.useGPS,
-          agree_to_terms: formData.agreeToTerms,
-          profile_picture_url: profilePictureUrl,
-        },
-      ]);
+      // Mock signup - in production this would save to database
+      const customerData = {
+        full_name: formData.fullName,
+        email: formData.email,
+        mobile_number: formData.mobileNumber,
+        password: formData.password || null,
+        location: formData.location,
+        use_gps: formData.useGPS,
+        agree_to_terms: formData.agreeToTerms,
+        profile_picture_url: profilePictureUrl,
+      };
 
-      if (error) {
-        // eslint-disable-next-line no-console
-        console.error('Customer signup insert error:', error);
-        setErrors((prev) => ({ ...prev, general: error.message }));
-        alert(`Signup failed: ${error.message}`);
-        setIsLoading(false);
-        return;
-      }
+      // Store user data in localStorage for demo
+      localStorage.setItem('currentUser', JSON.stringify({
+        email: customerData.email,
+        role: 'customer',
+        name: customerData.full_name,
+      }));
 
+      console.log('Customer signup data:', customerData);
       alert('🎉 Welcome to Kini! Your account has been created successfully!');
+      
+      // Navigate to customer dashboard
+      window.location.href = '/CustomerDashboard';
     } catch (err: any) {
-      // eslint-disable-next-line no-console
       console.error('Customer signup unexpected error:', err);
       setErrors((prev) => ({ ...prev, general: err.message || 'Signup failed' }));
       alert(`Signup failed: ${err?.message || 'Unexpected error'}`);
@@ -371,11 +332,15 @@ const CustomerSignup: React.FC<CustomerSignupProps> = ({
         </button>
 
         <div className="mt-8 mb-6">
+          <div className="mb-4">
+            <AppHeader title="Customer Signup" showBackToMain={true} className="justify-center" />
+          </div>
+          
           <div className="relative inline-block">
             <div className="absolute -top-2 -right-2 animate-bounce">
               <Heart className="w-6 h-6 text-red-400" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
               Join Kini Family!
             </h1>
           </div>

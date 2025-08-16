@@ -1,5 +1,4 @@
 import React, { useState, useRef } from 'react';
-import supabase from '../lib/supabaseClient';
 import { reverseGeocodeToAddress } from '../lib/geocoding';
 import {
   ArrowLeft,
@@ -8,31 +7,24 @@ import {
   Upload,
   Phone,
   Mail,
-  CreditCard,
   Image,
   AlertCircle,
   Check,
   Clock,
-  Coins,
   FileText,
   Shield,
-  Star,
   Award,
   TrendingUp,
-  Users,
   MessageSquare,
-  RefreshCw,
   Lock,
   CheckCircle,
-  History,
-  Bell,
-  Zap,
   Gift,
   Search,
   ChevronDown,
   ChevronUp,
   X,
 } from 'lucide-react';
+import AppHeader from './AppHeader';
 
 interface MerchantSignupProps {
   onBack: () => void;
@@ -75,43 +67,15 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
   const [otpVerified, setOtpVerified] = useState(false);
   const [otpTimer, setOtpTimer] = useState(0);
 
-  // Upload helper (MVP): uploads to 'signups' bucket and returns public URL
+  // Mock upload helper for development
   const uploadToStorage = async (file: File, folder: string): Promise<string | null> => {
     try {
-      const randomId = (typeof crypto !== 'undefined' && 'randomUUID' in crypto)
-        ? (crypto as any).randomUUID()
-        : `${Date.now()}_${Math.random().toString(36).slice(2)}`;
-      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-      const path = `${folder}/${randomId}_${safeName}`;
-      const { error: uploadError } = await supabase.storage
-        .from('signups')
-        .upload(path, file, { contentType: file.type, upsert: false });
-      if (uploadError) return null;
-      const { data } = supabase.storage.from('signups').getPublicUrl(path);
-      return data?.publicUrl ?? null;
+      // Mock implementation - in production this would upload to actual storage
+      return `https://mock-storage.com/${folder}/${file.name}`;
     } catch {
       return null;
     }
   };
-
-  // Realtime subscription for merchant signups (console log only)
-  React.useEffect(() => {
-    const channel = supabase
-      .channel('public:merchant_signups')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'merchant_signups' },
-        (payload) => {
-          // eslint-disable-next-line no-console
-          console.log('Realtime merchant signup:', payload.new);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
 
   // New state for searchable dropdown
   const [businessSearchTerm, setBusinessSearchTerm] = useState('');
@@ -472,14 +436,6 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
     setIsLoading(true);
 
     try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-      const supabaseAnon = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
-      if (!supabaseUrl || !supabaseAnon) {
-        alert('Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
-        setIsLoading(false);
-        return;
-      }
-
       // Upload documents/images if provided
       const [
         dtiUrl,
@@ -499,64 +455,33 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
         formData.storefrontPhoto ? uploadToStorage(formData.storefrontPhoto, 'merchants/storefront-photo') : Promise.resolve(null),
       ]);
 
-      const { data: inserted, error } = await supabase
-        .from('merchant_signups')
-        .insert([
-        {
-          business_name: formData.businessName,
-          business_branch: formData.businessBranch || null,
-          business_location: formData.businessLocation,
-          use_gps: formData.useGPS,
-          phone_number: formData.phoneNumber,
-          business_email: formData.businessEmail,
-          line_of_business: formData.lineOfBusiness,
-          dti_sec_url: dtiUrl,
-          bir_certificate_url: birUrl,
-          business_permit_url: permitUrl,
-          government_id_url: govIdUrl,
-          sanitary_permit_url: sanitaryUrl,
-          business_logo_url: logoUrl,
-          storefront_photo_url: storefrontUrl,
-          ewallet_provider: formData.eWalletProvider || null,
-          ewallet_number: formData.eWallet || null,
-          otp_code: formData.otpCode || null,
-          otp_verified: Boolean(otpVerified),
-          agree_to_terms: formData.agreeToTerms,
-          agree_food_safety: formData.agreeFoodSafety,
-        },
-      ])
-        .select('id')
-        .single();
+      // Mock merchant signup - in production this would save to database
+      const merchantData = {
+        business_name: formData.businessName,
+        business_branch: formData.businessBranch || null,
+        business_location: formData.businessLocation,
+        use_gps: formData.useGPS,
+        phone_number: formData.phoneNumber,
+        business_email: formData.businessEmail,
+        line_of_business: formData.lineOfBusiness,
+        dti_sec_url: dtiUrl,
+        bir_certificate_url: birUrl,
+        business_permit_url: permitUrl,
+        government_id_url: govIdUrl,
+        sanitary_permit_url: sanitaryUrl,
+        business_logo_url: logoUrl,
+        storefront_photo_url: storefrontUrl,
+        ewallet_provider: formData.eWalletProvider || null,
+        ewallet_number: formData.eWallet || null,
+        otp_code: formData.otpCode || null,
+        otp_verified: Boolean(otpVerified),
+        agree_to_terms: formData.agreeToTerms,
+        agree_food_safety: formData.agreeFoodSafety,
+      };
 
-      if (error || !inserted) {
-        // eslint-disable-next-line no-console
-        console.error('Merchant signup insert error:', error);
-        setErrors((prev) => ({ ...prev, general: error?.message || 'Insert failed' }));
-        alert(`Submission failed: ${error?.message || 'Insert failed'}`);
-        setIsLoading(false);
-        return;
-      }
-
-      // Insert readable per-line entries preserving order
-      const merchantId = inserted.id as string;
-      if (Array.isArray(formData.lineOfBusiness) && formData.lineOfBusiness.length > 0) {
-        const rows = formData.lineOfBusiness.map((label, idx) => ({
-          merchant_signup_id: merchantId,
-          line_label: label,
-          order_index: idx,
-        }));
-        const { error: lobError } = await supabase
-          .from('merchant_signup_line_of_business')
-          .insert(rows);
-        if (lobError) {
-          // eslint-disable-next-line no-console
-          console.warn('Failed to save line_of_business readable rows:', lobError.message);
-        }
-      }
-
-      alert('🎉 Application submitted successfully! Your details have been submitted.');
+      console.log('Merchant signup data:', merchantData);
+      alert('🎉 Application submitted successfully! Your details have been submitted for review.');
     } catch (err: any) {
-      // eslint-disable-next-line no-console
       console.error('Merchant signup unexpected error:', err);
       setErrors((prev) => ({ ...prev, general: err.message || 'Signup failed' }));
       alert(`Submission failed: ${err?.message || 'Unexpected error'}`);
@@ -708,11 +633,15 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
           </button>
 
           <div className="text-center pt-12">
+            <div className="mb-6">
+              <AppHeader title="Merchant Signup" showBackToMain={true} className="justify-center" />
+            </div>
+            
             <div className="relative inline-block mb-4">
               <div className="absolute -top-2 -right-2 animate-bounce">
                 <Award className="w-6 h-6 text-yellow-400" />
               </div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
                 Become a Partner!
               </h1>
             </div>
@@ -1832,13 +1761,5 @@ const MerchantSignup: React.FC<MerchantSignupProps> = ({
   );
 };
 
-function App() {
-  return (
-    <MerchantSignup
-      onBack={() => console.log('Back clicked')}
-      onSwitchToLogin={() => console.log('Switch to login clicked')}
-    />
-  );
-}
 
 export default MerchantSignup;

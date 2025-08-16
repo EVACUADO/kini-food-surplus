@@ -72,7 +72,7 @@ const PricingComponent: React.FC<PricingComponentProps> = ({
                 </div>
                 <div className="mb-3 sm:mb-6 text-center">
                   <span className="text-2xl sm:text-4xl font-bold text-gray-900">₱0</span>
-                  <span className="text-sm sm:text-base text-gray-600"> / forever</span>
+                  <span className="text-sm sm:text-base text-gray-600"> / 30 Days</span>
                 </div>
               </div>
               <div className="mt-auto">
@@ -216,7 +216,7 @@ const PricingComponent: React.FC<PricingComponentProps> = ({
                   >
                     ₱500
                   </span>
-                  <span className="text-sm sm:text-base text-gray-600"> / month</span>
+                  <span className="text-sm sm:text-base text-gray-600"> / 1 month</span>
                 </div>
               </div>
               <div className="mt-auto">
@@ -364,7 +364,7 @@ const PricingComponent: React.FC<PricingComponentProps> = ({
                   >
                     ₱1,000
                   </span>
-                  <span className="text-sm sm:text-base text-gray-600"> / month</span>
+                  <span className="text-sm sm:text-base text-gray-600"> / 1 month</span>
                 </div>
               </div>
               <div className="mt-auto">
@@ -507,7 +507,7 @@ const PricingComponent: React.FC<PricingComponentProps> = ({
                 </div>
                 <div className="mb-3 sm:mb-6 text-center">
                   <span className="text-2xl sm:text-4xl font-bold text-white">₱5,000</span>
-                  <span className="text-sm sm:text-base text-blue-100"> / month</span>
+                  <span className="text-sm sm:text-base text-blue-100"> / 3 months</span>
                 </div>
               </div>
               <div className="mt-auto">

@@ -12,6 +12,7 @@ import {
   Sparkles,
   CheckCircle,
 } from 'lucide-react';
+import AppHeader from './AppHeader';
 
 interface LoginProps {
   onBack?: () => void;
@@ -110,14 +111,12 @@ const Login: React.FC<LoginProps> = ({
         }
 
         // Store user data in localStorage (simulating auth context)
-        localStorage.setItem(
-          'currentUser',
-          JSON.stringify({
-            email: user.email,
-            role: user.role,
-            name: user.name,
-          })
-        );
+        const userData = {
+          email: user.email,
+          role: user.role,
+          name: user.name,
+        };
+        localStorage.setItem('currentUser', JSON.stringify(userData));
 
         // Call the success callback if provided, otherwise use default navigation
         if (onLoginSuccess) {
@@ -158,11 +157,15 @@ const Login: React.FC<LoginProps> = ({
 
         {/* Welcome section */}
         <div className="mt-8 mb-6">
+          <div className="mb-4">
+            <AppHeader title="Sign In" showBackToMain={true} className="justify-center" />
+          </div>
+          
           <div className="relative inline-block">
             <div className="absolute -top-2 -right-2 animate-bounce">
               <Sparkles className="w-6 h-6 text-yellow-400" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
               Welcome back!
             </h1>
           </div>

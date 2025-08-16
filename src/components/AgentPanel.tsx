@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Leaf,
   Clock,
   CheckCircle,
   XCircle,
@@ -14,8 +13,10 @@ import {
   AlertCircle,
   Download,
   Eye,
-  Utensils,
+  LogOut,
 } from 'lucide-react';
+import { logout, getCurrentUser } from '../lib/auth';
+import AppHeader from './AppHeader';
 
 const AgentPanel = () => {
   const [selectedApplication, setSelectedApplication] = useState<string | null>(
@@ -23,8 +24,12 @@ const AgentPanel = () => {
   );
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   React.useEffect(() => {
+    // Get current user info
+    const user = getCurrentUser();
+    setCurrentUser(user);
     loadApplications();
   }, []);
 
@@ -87,9 +92,6 @@ const AgentPanel = () => {
     }
   };
 
-  const formatTimeRemaining = (timeString: string) => {
-    return timeString;
-  };
 
   const handleApprove = (applicationId: string) => {
     const approveApplication = async () => {
@@ -142,25 +144,7 @@ const AgentPanel = () => {
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <Link to="/" className="flex items-center space-x-3">
-                <div className="h-10 w-10">
-                  <img
-                    src="/Kini white logo.png"
-                    alt="Kini Logo"
-                    className="h-full w-full object-cover rounded-xl"
-                  />
-                </div>
-                <div>
-                  <span className="text-xl font-bold text-[#469b47]">
-                    Kini Food Surplus
-                  </span>
-                  <p className="text-xs text-gray-600 -mt-1">
-                    Verification Panel
-                  </p>
-                </div>
-              </Link>
-            </div>
+            <AppHeader title="Agent Panel" showBackToMain={true} />
 
             <div className="flex items-center space-x-4">
               <div className="bg-gradient-to-r from-yellow-100 to-yellow-50 px-4 py-2 rounded-xl border border-yellow-200">
@@ -178,8 +162,15 @@ const AgentPanel = () => {
                   <CheckCircle className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-sm font-medium text-gray-700">
-                  Verification Agent
+                  {currentUser?.name || 'Verification Agent'}
                 </span>
+                <button
+                  onClick={logout}
+                  className="p-1 text-gray-500 hover:text-red-600 transition-colors ml-2"
+                  title="Sign Out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
               </div>
             </div>
           </div>
@@ -203,7 +194,12 @@ const AgentPanel = () => {
               </div>
 
               <div className="divide-y divide-gray-200">
-                {applications.length === 0 ? (
+                {loading ? (
+                  <div className="p-8 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#469b47] mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading applications...</p>
+                  </div>
+                ) : applications.length === 0 ? (
                   <div className="p-8 text-center">
                     <div className="w-16 h-16 bg-gradient-to-br from-[#469b47]/10 to-[#469b47]/20 rounded-full flex items-center justify-center mx-auto mb-4">
                       <FileText className="w-8 h-8 text-[#469b47]" />
