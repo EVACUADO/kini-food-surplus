@@ -12,7 +12,7 @@ export const authFunctions = {
     return { user: null };
   },
 
-  getUserProfile: async (userId: string) => {
+  getUserProfile: async (_userId: string) => {
     const userData = localStorage.getItem('currentUser');
     if (userData) {
       const user = JSON.parse(userData);
@@ -37,7 +37,7 @@ export const productFunctions = {
 
 // Mock order functions
 export const orderFunctions = {
-  getCustomerOrders: async (customerId: string) => {
+  getCustomerOrders: async (_customerId: string) => {
     // Return empty array for now - can be populated with mock data later
     return { data: [] };
   }
@@ -45,12 +45,12 @@ export const orderFunctions = {
 
 // Mock message functions
 export const messageFunctions = {
-  getConversations: async (userId: string) => {
+  getConversations: async (_userId: string) => {
     // Return empty array for now - can be populated with mock data later
     return { data: [] };
   },
 
-  sendMessage: async (recipientId: string, content: string) => {
+  sendMessage: async (_recipientId: string, _content: string) => {
     // Mock send message functionality
     return { data: null, error: null };
   }

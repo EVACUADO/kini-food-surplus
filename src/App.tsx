@@ -34,9 +34,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (!isAuthenticated) {
     // Redirect to appropriate login based on required role
     if (requiredRole === 'admin') {
-      return <Navigate to="/AdminDashboard" replace />;
+      return <Navigate to={HIDDEN_ROUTES.ADMIN} replace />;
     } else if (requiredRole === 'agent') {
-      return <Navigate to="/AgentDashboard" replace />;
+      return <Navigate to={HIDDEN_ROUTES.AGENT} replace />;
     }
     // For customer and merchant, redirect to unified auth
     return <Navigate to="/auth" replace />;
@@ -52,9 +52,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     } else {
       // Redirect to appropriate login based on required role
       if (requiredRole === 'admin') {
-        return <Navigate to="/AdminDashboard" replace />;
+        return <Navigate to={HIDDEN_ROUTES.ADMIN} replace />;
       } else if (requiredRole === 'agent') {
-        return <Navigate to="/AgentDashboard" replace />;
+        return <Navigate to={HIDDEN_ROUTES.AGENT} replace />;
       }
       // Wrong role for customer/merchant - redirect to auth
       return <Navigate to="/auth" replace />;
@@ -63,9 +63,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     // Invalid user data, clear localStorage and redirect
     localStorage.removeItem('currentUser');
     if (requiredRole === 'admin') {
-      return <Navigate to="/AdminDashboard" replace />;
+      return <Navigate to={HIDDEN_ROUTES.ADMIN} replace />;
     } else if (requiredRole === 'agent') {
-      return <Navigate to="/AgentDashboard" replace />;
+      return <Navigate to={HIDDEN_ROUTES.AGENT} replace />;
     }
     return <Navigate to="/auth" replace />;
   }

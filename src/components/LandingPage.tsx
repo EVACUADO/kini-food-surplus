@@ -118,7 +118,7 @@ const LandingPage = () => {
             {/* Logo */}
             <div className="flex items-center space-x-3">
               <img
-                src="Kini white logo.png"
+                src="/Kini white logo.png"
                 alt="Kini Logo"
                 className="h-10 w-10 rounded-xl object-cover"
               />
@@ -262,7 +262,7 @@ const LandingPage = () => {
                 />
                 {/* Desktop Banner */}
                 <img
-                  src="/banners/LandingTopBanner.png"
+                  src="/Banners/LandingTopBanner.png"
                   alt="Kini Food Surplus Banner"
                   className="w-full h-auto object-cover object-center"
                   style={{
@@ -1043,7 +1043,7 @@ const LandingPage = () => {
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
                 <img
-                  src="Kini white logo.png"
+                  src="/Kini white logo.png"
                   alt="Kini Logo"
                   className="h-10 w-10 rounded-lg"
                 />
