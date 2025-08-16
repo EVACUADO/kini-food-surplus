@@ -126,10 +126,6 @@ const AdminAgentLogin: React.FC<AdminAgentLoginProps> = ({ userType }) => {
     }, 1500);
   };
 
-  const getTitle = () => {
-    return userType === 'admin' ? 'Administration' : 'Verification';
-  };
-
   const getSubtitle = () => {
     return userType === 'admin'
       ? 'Access system administration'
